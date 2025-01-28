@@ -1,0 +1,3 @@
+1) how sockets work
+2) simple socket connection
+3) 
