@@ -1,8 +1,9 @@
+//client
 $("#hide").hide();
 var nickname = prompt("Enter your name: ");
 var userImg = "";
 var currentPokemon;
-var trainers = [
+var trainers =[
   "aaron",
   "adaman",
   "akari",
@@ -24,23 +25,20 @@ var trainers = [
   "wulfric",
   "will",
   "miku-ground",
-  "zinzolin",
+  "zinzolin"
 ];
-var index_2 = Math.floor(Math.random() * trainers.length);
+var index_2 = Math.floor(Math.random() * trainers.length); 
 
-userImg =
-  "https://play.pokemonshowdown.com/sprites/trainers/" +
-  trainers[index_2] +
-  ".png";
+userImg = "https://play.pokemonshowdown.com/sprites/trainers/" + trainers[index_2] + ".png";
+
+
 
 var socket = io();
 
 function scrollToBottom() {
   window.scrollTo(0, document.body.scrollHeight);
 }
-function wait(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+
 function evolve() {
   socket.emit("evolution");
 }
@@ -55,15 +53,15 @@ $("form").submit(function () {
   socket.emit("chat message", msg);
   $("#messages").append(
     $('<li class = "right">').html(
-      '<div class = "msg" >' +
-        msg +
-        "</div>" +
-        '<div class ="msg"><img src = ' +
+      '<div class ="msg"><img src = ' +
         userImg +
         "></br>" +
         nickname +
         "</div>" +
-        "&nbsp;"
+        "&nbsp;" +
+        '<div class = "msg" >' +
+        msg +
+        "</div>"
     )
   );
   $("#m").val("");
@@ -137,25 +135,27 @@ socket.on("info", function (res) {
   // currentPokemon = Object.assign({},res);
   $("#status").html("A pokemon is ready.");
   var imgSrc = "img/pokemons/" + res.key + ".png";
-
+  $("#messages").append(
+    $("<li class =" + res.usercolor + ">").html("pokemon for " + res.username)
+  );
   $("#messages").append(
     $("<li>").html(
-      '<div class = "msg"><div style="display:flex;"><img src = ' +
+      '<div class = "msg"><img src = ' +
         imgSrc +
-        "><div><b>" +
+        "></br><b>" +
         res.name +
-        "</b><p class = " +
+        "</b></br><span class = " +
         res.type +
         ">" +
         res.type +
-        "</p>" +
+        "</span></br>" +
         '<span class = "hp">HP</span> ' +
         res.hitpoints.toString() +
         ' <span class = "att">ATT</span> ' +
         res.attack.toString() +
         ' <span class = "def">DEF</span> ' +
         res.defense.toString() +
-        "</div></div></div>"
+        "</div>"
     )
   );
   $("#messages").append(
@@ -209,43 +209,41 @@ socket.on("begin", function (res) {
   }
   $("#messages").append(
     $("<li>").html(
-      '<div class = "msg"><div style="display:flex;"><img src = ' +
+      '<div class = "msg"><img src = ' +
         selfPokemonImg +
-        "><div><b>" +
+        "></br><b>" +
         self.name +
-        "</b><p class = " +
+        "</b></br><span class = " +
         self.type +
         ">" +
         self.type +
-        "</p>" +
+        "</span></br>" +
         '<span class = "hp">HP</span> ' +
         self.hitpoints.toString() +
-        '<span class = "att">ATT</span> ' +
+        ' <span class = "att">ATT</span> ' +
         self.attack.toString() +
-        '<span class = "def">DEF</span> ' +
+        ' <span class = "def">DEF</span> ' +
         self.defense.toString() +
-        "</div></div></div>" +
-        '<div class = "msg dright"><div style="display:flex;">' +
-        "<div><b>" +
+        "</div>" +
+        '<div class = "msg dright"><img src = ' +
+        opponentPokemonImg +
+        "></br><b>" +
         opponent.name +
-        "</b><p class = " +
+        "</b></br><span class = " +
         opponent.type +
         ">" +
         opponent.type +
-        "</p>" +
+        "</span></br>" +
         '<span class = "hp">HP</span> ' +
         opponent.hitpoints.toString() +
         ' <span class = "att">ATT</span> ' +
         opponent.attack.toString() +
         ' <span class = "def">DEF</span> ' +
         opponent.defense.toString() +
-        "</div>" +
-        "<img src = " +
-        opponentPokemonImg +
-        ">" +
-        "</div></div>"
+        "</div>"
     )
   );
+
   scrollToBottom();
 });
 
@@ -272,28 +270,30 @@ socket.on("single_res", function (res) {
       opponentCurrentImg = "img/" + res[key].current + ".png";
     }
   }
+  $("#messages").append($("<li>").html("#" + self.index));
   $("#messages").append(
     $("<li>").html(
-      '<div class="msg"><div style="display: flex"><div><img style="width:100px; height:auto;" src="' +
+      '<div class = "msg"><img src = ' +
         selfPokemonImg +
-        '"><br><img class="smaller" src="' +
+        '><img class = "smaller" src = ' +
         selfCurrentImg +
-        '"></div><div class="dleft"><br> ' +
+        "></br>" +
+        '<div class = "dleft"><span class = "green glyphicon glyphicon-heart"></span> ' +
         self.hp +
-        "</div></div></div>" +
-        '<div class="msg dright"><div style="display: flex"><img class="smaller" src="' +
+        "</div></br>" +
+        "</div>" +
+        '<div class = "msg dright"><img class = "smaller" src = ' +
         opponentCurrentImg +
-        '"><br>' +
-        " </div><div>" +
-        '<img style="width:100px; height:auto;" src="' +
+        "><img src = " +
         opponentPokemonImg +
-        '"><div class="dright"><br>'+
+        "></br>" +
+        '<div class = "dright">' +
         opponent.hp +
-        '</div><div></div>'
+        ' <span class = "green glyphicon glyphicon-heart"></span></div></br>' +
+        "</div>"
     )
   );
   scrollToBottom();
-  wait(500);
 });
 
 socket.on("move1_res", function (res) {
@@ -305,10 +305,10 @@ socket.on("move1_res", function (res) {
   for (var key in res) {
     if (res[key].username == nickname) {
       self = res[key];
-      selfPokemonImg = "animation/" + res[key].pokemon.key + ".gif";
+      selfPokemonImg = "img/pokemons/" + res[key].pokemon.key + ".png";
     } else {
       opponent = res[key];
-      opponentPokemonImg = "animation/" + res[key].pokemon.key + ".gif";
+      opponentPokemonImg = "img/pokemons/" + res[key].pokemon.key + ".png";
     }
 
     //determine attacker

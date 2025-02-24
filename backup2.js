@@ -1,3 +1,4 @@
+//server.js
 var express = require('express');
 var app = express();
 // var bodyParser = require('body-parser');
@@ -485,7 +486,7 @@ io.on('connection', function(socket){
   		msg = "----- Someone has joined the chat -----"
   	}	
   	io.emit('enter room',msg)
-    var notice = "<p class=\" intro \">Welcome to pokemon fight game!</p><p>Enter <b>1</b> to select a pokemon.</p><p>Enter <b>2</b> to view the battle instructions.</p><p>Enter <b>`</b> to view your pokemon infomation at any time.</p><p>Enter <b>+</b> to play against PC.</p><p>Enter <b>-</b> to reset game status.</p><p>Have fun!</p>";
+    var notice = "<p class=\" intro \">Welcome to pokemon fight game!</p><p>Enter <b>#</b> to select a pokemon.</p><p>Enter <b>?</b> to view the battle instructions.</p><p>Enter <b>~</b> to view your pokemon infomation at any time.</p><p>Enter <b>+</b> to add AI.</p><p>Enter <b>-</b> to reset game status.</p><p>Have fun!</p>";
     socket.emit('notice',notice);
 
   });
@@ -588,7 +589,7 @@ io.on('connection', function(socket){
         var msg = "System Message: Battle Begins!";
         io.to(player).emit('notice',msg);
         io.to(player).emit('begin',room.pokemons);
-        var msg = "Please enter your battle commands ...(enter 2 to see instructions)";
+        var msg = "Please enter your battle commands ...(enter ? to see instructions)";
         io.to(player).emit('notice',msg);
       }
     }
@@ -601,7 +602,7 @@ io.on('connection', function(socket){
   socket.on('chat message', function(msg){
     var op = msg.slice(0,1);
     switch(op){
-      case '1': // pokemon info
+      case '#': // pokemon info
         if(userStatus[socket.id] != undefined){
           var msg = 'You cannot change your pokemon at this moment. To reset game status, enter <b>-</b>';
           socket.emit('notice',msg);
@@ -650,7 +651,7 @@ io.on('connection', function(socket){
         break;
       case '@':
         if(!userPokemons[socket.id]){ //undefined
-          var msg = "System Message: You should input '1' first to choose a pokemon!";
+          var msg = "System Message: You should input '#' first to choose a pokemon!";
           socket.emit('notice',msg);
         }else{ //else##
           //handle rsp
@@ -671,7 +672,7 @@ io.on('connection', function(socket){
             }//end switch
           }
           if(!isCommandValid(str)){
-            var msg = "Invalid command! Enter '2' for more details.";
+            var msg = "Invalid command! Enter '?' for more details.";
             socket.emit('notice',msg);
           }else{ //big big program starts here!
             if(userStatus[socket.id] == undefined){ //user has not confirm(ready to battle)
@@ -739,7 +740,7 @@ io.on('connection', function(socket){
                 console.log('ai',AI.id);
                 room.playerCmds[AI.id] = AI_commands;
                 room.playerOriCmds[AI.id] = AI_Oricommands;
-                var msg = 'PC has entered his commands...';
+                var msg = 'AI has entered his commands...';
                 socket.emit('notice',msg);
                 
 
@@ -748,9 +749,9 @@ io.on('connection', function(socket){
 
               var len = Object.keys(room.playerCmds).length;
               if(len >= 2){
-                var msg = "Double affirmative";
+                var msg = "Commands are completed for this round...";
                 socket.emit('notice',msg);
-                var msg = "Battle Begins";
+                var msg = "Results for this round ...";
                 roomAnounce(roomid,msg,'notice');
                 var round_res = thisRound(room.playerCmds,room.playerOriCmds); //important variable!
                 // define the variable for the array index
@@ -926,7 +927,7 @@ io.on('connection', function(socket){
                     var notice = "<span class = 'glyphicon glyphicon-queen gold'></span> Battle ends! The winner is <b>"+userPokemons[winner].username+'</b>';
                     roomAnounce(roomid,notice,'notice');
                     
-                    var notice = "Enter 1 to prepare for another battle!";
+                    var notice = "Enter # to prepare for another battle!";
                     roomAnounce(roomid,notice,'notice');
                     for(var i = 0; i < room.players.length; i++){
                       var player = room.players[i];
@@ -986,7 +987,7 @@ io.on('connection', function(socket){
                   if(battleOn(round_res.user1,round_res.user2)){
                     room.playerCmds = {};
                     room.playerOriCmds = {};
-                    var notice = "please enter your battle commands(enter 2 to see instructions): ";
+                    var notice = "please enter your battle commands(enter ? to see instructions): ";
                     roomAnounce(roomid,notice,'notice');
                   }else{
                     var winner = battleWinner(round_res.user1,round_res.user2);
@@ -997,7 +998,7 @@ io.on('connection', function(socket){
                       delete userPokemons[player];
                       delete userStatus[player];
                     }
-                    var notice = "Enter 1 to prepare for another battle!";
+                    var notice = "Enter # to prepare for another battle!";
                     roomAnounce(roomid,notice,'notice');
                     delete vs[roomid];
                   }
@@ -1055,34 +1056,34 @@ io.on('connection', function(socket){
         } //end of else ##
 
         break;
-      case '2':
+      case '?':
         //answer questions about rsp
-        var msg = "<p><b>Battle Helper:</b></p><p>r-rock, s-scissors, p-paper.</p><p>You should input a length-6 sequence after '@'.</p><p>For example, @rsrrpp </p><p>If your move command is 'rs' and your supermove command is 'rsp', you can input '@12s' which equals '@rsrsps'.</p><p>You can also input '@1ss1' which equals '@rsssrs'.</p><p>You can enter <b>`</b> to view your pokemon infomation at any times.</p><p>You can enter <b>-</b> to reset game status.</p>";
+        var msg = "<p><b>Battle Helper:</b></p><p>r-rock, s-scissors, p-paper.</p><p>You should input a length-6 sequence after '@'.</p><p>For example, @rsrrpp </p><p>If your move command is 'rs' and your supermove command is 'rsp', you can input '@12s' which equals '@rsrsps'.</p><p>You can also input '@1ss1' which equals '@rsssrs'.</p><p>You can enter <b>~</b> to view your pokemon infomation at any times.</p><p>You can enter <b>-</b> to reset game status.</p>";
         socket.emit('notice',msg);
         break;
-      case '`':
+      case '~':
         if(userPokemons[socket.id] != undefined){
           var res = userPokemons[socket.id]
           socket.emit('info',res);
         }else{
-          var notice = 'You have not selected a pokemon yet! To do that,enter 1';
+          var notice = 'You have not selected a pokemon yet! To do that,enter #';
           socket.emit('notice',notice);
         }
         break;
       case '+':
         if(userStatus[socket.id] == undefined){
-          var msg = 'You must confirm you pokemon first to enable an PC.';
+          var msg = 'You must confirm you pokemon first to enable an AI.';
           socket.emit('notice',msg);
           break;
         }
         var room = vs[userStatus[socket.id].roomId];
         if(room.status === 'full'){
-          var msg = 'Fail to enable an PC. Your room is full.';
+          var msg = 'Fail to enable an AI. Your room is full.';
           socket.emit('notice',msg);
           break;
         }
         room.isAI = true;
-        var notice = 'System Message: PC is added to the battle.';
+        var notice = 'System Message: AI is added to the battle.';
         socket.emit('notice',notice);
         // AI join battle
         var AI_candidates = [3,6,9,31,34,59,62,65,68,71,76,94,103,107,110,112,123,127,128,130,131,141,143,144,145,146,149,150,151];
@@ -1108,7 +1109,7 @@ io.on('connection', function(socket){
                                 data,
                                 {mp:100},
                                 {key:AI_candidates[index]},
-                                {username:'PC'},
+                                {username:'*AI*'},
                                 {moves:data.moves[rand1]},
                                 {supermoves:data.supermoves[rand2]},
                                 {move_command:move_command},
@@ -1128,7 +1129,7 @@ io.on('connection', function(socket){
         var msg = "System Message: Battle Begins!";
         socket.emit('notice',msg);
         socket.emit('begin',room.pokemons);
-        var msg = "Please enter your battle commands ...(enter 2 to see instructions)";
+        var msg = "Please enter your battle commands ...(enter ? to see instructions)";
         socket.emit('notice',msg);
 
         break;
@@ -1164,7 +1165,7 @@ io.on('connection', function(socket){
         }
         delete userStatus[socket.id];
 
-        var notice = 'Your game status is reset. You can enter enter <b>1</b> to choose another pokemon.';
+        var notice = 'Your game status is reset. You can enter enter <b>#</b> to choose another pokemon.';
         socket.emit('notice',notice);
 
         break;
