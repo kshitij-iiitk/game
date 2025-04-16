@@ -6,7 +6,7 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 var client = require('socket.io-client');
-var AI = client.connect("https://ptb-game.onrender.com");
+var AI = client.connect("http://localhost:3000");
 var path = require('path');
 app.use(express.static(path.join(__dirname,'./client')));
 
